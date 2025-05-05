@@ -1,0 +1,90 @@
+program ej2;
+uses
+     SysUtils, unit1;
+const
+  N=50;
+  cantD=10;
+  numeroAlto=9999999;
+type
+    licencia= record
+         codigo_E:integer;
+         fecha:string[N];
+         cant_DiasSol:integer;
+  end;
+    empleado= record
+         codigo_E:integer;
+         nomyape:string[N];
+         direccion:string[N];
+         fecha:string[N];
+         telefono:integer;
+         cant_DiasRes:integer;
+  end;
+    detalle= file of licencia;
+    maestro= file of empleado;
+    vecdet=array [1..cantD] of detalle;
+    veclic=array [1..cantD] of licencia;
+procedure LeerD (var archivo:detalle;var dato:licencia);
+begin
+  if(not EOF(archivo)) then
+         read(archivo,dato)
+  else
+      dato.codigo_E:=numeroAlto;
+     end;
+procedure LeerM (var archivo:maestro;var dato:empleado);
+begin
+  if(not EOF(archivo)) then
+         read(archivo,dato)
+  else
+      dato.codigo_E:=numeroAlto;
+     end;
+procedure Minimo(var archivo:vecdet; var rdet:veclic; var min:licencia);
+var
+  pos,i:integer;
+begin
+  pos:=1;
+  min:=rdet[pos];
+  for i:= 2 to cantD do begin
+      if(rdet[i].codigo_E<min.codigo_E)then begin
+        min:=rdet[i];
+        pos:=i;
+      end;
+  end;
+  leerD(archivo[i],rdet[i]);
+end;
+
+var
+  archivo_maestro:maestro;
+  vecD: array[1..10] of detalle;
+  vecL: array [1..10] of licencia;
+  auxM:empleado;
+  min:licencia;
+  i:integer;
+  archivo_texto: Text;
+begin
+     Assign(archivo_texto,'empleados_sin_dias.txt');
+     Reset(archivo_texto);
+     Assign(archivo_maestro,'archivo_maestro.bin');
+     Reset(archivo_maestro);
+     for i:= 1 to 10 do begin
+       Assign(vecD[i],'archivo_detalle'+IntToStr(i)+'.bin');
+       Reset(vecD[i]);
+       leerD(vecD[i],vecL[i]);
+     end;
+     leerM(archivo_maestro,auxM);
+     while(not EOF(archivo_maestro)) do begin
+       Minimo(vecD,vecL,min);
+       while(min.codigo_E<>auxM.codigo_E) do
+         leerM(archivo_maestro,auxM);
+       if(min.cant_DiasSol<auxM.cant_DiasRes)then  begin
+              auxM.cant_DiasRes:=auxM.cant_DiasRes-min.cant_DiasSol;
+              seek(archivo_maestro, FilePos(archivo_maestro)-1);
+              write(archivo_maestro,auxM);
+       end
+       else
+         writeln(archivo_texto, 'El empleado ' + auxM.nomyape + ' con código ' +
+      IntToStr(auxM.codigo_E) + ' tiene ' + IntToStr(auxM.cant_DiasRes) +
+      ' días reservados y pide ' + IntToStr(min.cant_DiasSol) + ' días');
+
+     end;
+
+end.
