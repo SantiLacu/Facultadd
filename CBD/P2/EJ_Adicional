@@ -1,0 +1,117 @@
+program ej3P2;
+uses
+    SysUtils;
+const
+  N=500;
+  str=100;
+  valorAlto = 999999;
+
+
+type
+  ropa=record
+         codigo_Poducto:integer;
+         codigo_Stock:integer;
+         descripcion:string[str];
+         nombre:string[str];
+         end;
+  archivoDatos = file of ropa;
+
+procedure extrarDatos(var texto:Text; var maestro:archivoDatos);
+var
+   aux:ropa;
+begin
+     while(not EOF(texto))do begin
+       readln(texto,aux.codigo_Poducto,aux.codigo_Stock);
+       readln(texto,aux.descripcion);
+       readln(texto,aux.nombre);
+       write(maestro,aux);
+     end;
+end;
+
+procedure eliminar_Sin(var maestro:archivoDatos);
+var
+   codigo:integer;
+   aux:ropa;
+begin
+     writeln('Ingrese el codigo de producto a eliminar');
+     read(codigo);
+     leerM(maestro,aux);
+     while(aux.codigo_Poducto<>valorAlto)and(aux.codigo_Poducto<>codigo)do
+       leerM(maestro,aux);
+     aux.codigo_Poducto:=-1;
+     seek(maestro,FilePos(maestro)-1);
+     write(maestro);
+end;
+
+procedure agregar_Sin(var maestro:archivoDatos);
+var
+   aux:ropa;
+begin
+     writeln('Ingrese el codigo de producto');
+     read(aux.codigo_Poducto);
+     writeln('Ingrese el stock');
+     read(aux.codigo_Stock);
+     writeln('Ingrese el nombre');
+     readln(aux.nombre);
+     writeln('Ingrese la descripcion');
+     readln(aux.descripcion);
+     seek(maestro,FileSize(maestro));
+     write(maestro,aux);
+end;
+
+procedure eliminar_Con(var maestro:archivodatos);
+var
+   codigo,header,pos:integer;
+   aux:ropa;
+begin
+     writeln('Ingrese el codigo a eliminar');
+     read(codigo);
+     leerM(maestro,aux);
+     header:=aux.codigo_Poducto;                                                   {Me guardo la posicion del ultimo eliminado}
+     while (aux.codigo_Poducto<>valorAlto) and (aux.codigo_Poducto<>codigo)do
+           leerM(maestro,aux);                                                     {busco el que quiero eliminar}
+     pos:=FilePos(maestro)-1;                                                       {me guardo su posicion}
+     aux.codigo_Poducto:=header;                                                    {hago que apunte a la posicion de la elimanacion previa}
+     seek(maestro,pos);                                                             {lo reescribo}
+     write(maestro,aux);
+     seek(maestro,0);                                                               {actualizo la cabecera con la pos de el ultimo elimiando}
+     aux.codigo_Poducto:=pos;
+     write(maestro,aux)
+end;
+
+procedure leerD (var archivo:archivoD; var dato:votosD);
+begin
+     if(not EOF(archivo)) then
+            read(archivo,dato)
+     else
+         dato.codigo_Provincia:=valorAlto;
+end;
+
+procedure leerM (var archivo:archivoDatos; var dato:ropa);
+begin
+     if(not EOF(archivo)) then
+            read(archivo,dato)
+     else
+         dato.codigo_Poducto:=valorAlto;
+end;
+
+procedure minimo(var vectorDetalle:vectorD;var vectorDato:vectorVotos; var min:votosD );
+var
+  pos,i:integer;
+begin
+     pos:=1;
+     min:=vectorDato[pos];
+     for i:= 2 to N do begin
+       if(vectorDato[i].codigo_Provincia<min.codigo_Provincia)and (vectorDato[i].codigo_Localidad<min.codigo_Localidad) then
+          begin
+          min:=vectorDato[i];
+          pos:=i;
+                     end;
+     end;
+     leerD(vectorDetalle[pos],vectorDato[pos]);
+end;
+var
+
+begin
+
+end.

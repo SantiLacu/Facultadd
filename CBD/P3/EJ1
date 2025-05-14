@@ -1,0 +1,84 @@
+//Se cuenta con un archivo que almacena información sobre especies de plantas originarias de Europa, 
+//de cada especie se almacena: código especie, nombre vulgar, nombre científico, altura promedio, 
+//descripción y zona geográfica. El archivo no está ordenado por ningún criterio. Realice un programa que 
+//elimine especies de plantas trepadoras. Para ello se recibe por teclado los códigos de especies a 
+//eliminar. 
+const
+  str=50;
+type
+  maestro= file of planta;
+  planta = record 
+    codigo:integer;
+    nombreVulgar:string[str];
+    nombreCientifico:string[str];
+    alturaPromedio:real;
+    descripcion:string[str];
+    zonaGeografica:string[str];
+    end;
+procedure bajaFisica(var arch:maestro);
+var
+especie:string;
+pos:integer;
+aux,fin:planta;
+begin
+  reset(arch);
+  writeln("Ingrese el nombre científico de la especie a eliminar");
+  readln(especie);
+  read(arch,aux);
+  while(not EOF(arch)and aux.nombreCientifico!=especie) then
+    read(arch,aux);                                           //Busca el elemento
+  if (aux.nombreCientifico=especie) then begin                // Si lo encuetra
+    pos=filepos(arch)-1;                                      // Se guarda su posicion
+    seek(arch,filesize(arch)-1);                              // Va al final del archivo
+    read(arch,fin);                                           //Lee el ultimo elemento
+    seek(arch,pos);                                           // Va a la posicion a eliminar
+    write(arch,fin);                                          //Sobreescribe el elemento a eliminar con el del final del archivo
+    seek(filesize(arch)-1);                                   //Vuelve al final
+    truncate(arch);                                           //Marca el fina del archivo ya que hay un elemento menos
+  end
+  else
+  begin
+    writeln("No se encontró la especie");
+  end;
+end;
+
+procedure bajaLogica(var arch:maestro);
+var
+aux: especie;
+pos: integer;
+begin
+  reset(arch);
+  writeln("Ingrese el nombre científico de la especie a eliminar");
+  readln(especie);
+  read(arch,aux);
+  while(not EOF(arch)and aux.nombreCientifico!=especie) then
+    read(arch,aux);
+  if (aux.nombreCientifico=especie) then begin
+    pos=filepos(arch)-1;                                            //Se guarda la pos a eliminar
+    seek(arch,pos);
+    aux.codigo=-1;                                                  // Marca el archivo como eliminado
+    write(arch,aux);
+  end
+  else
+  begin
+    writeln("No se encontró la especie");
+  end;
+  close(arch);
+end;
+
+procedure compactarArchivo(var arch:maestro,var nuevoArch:maestro);
+var
+  aux: especie;
+begin
+  reset(arch);
+  rewrite(nuevoArch);
+  read(arch,aux);
+  while(not EOF(arch))then begin
+    if (aux.codigo!=-1) then                                          //Crea un nuevo archivo, evitando los elementos marcados
+      write(nuevoArch,aux);
+    end;
+    read(arch,aux);
+  end;
+  close(arch);
+  close(nuevoArch);
+end;
