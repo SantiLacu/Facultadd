@@ -55,9 +55,8 @@ type
         leerD(vectorDet[pos],vectorDato[pos]);
     end;
 
-    procedure crearMaestro(var vectorDet:vectorDetalle; var vectorDato:vectorDatoD; var archivoMaestro:maestro);
+    procedure crearMaestro(var vectorDet:vectorDetalle; var vectorDato:vectorDatoD; var archivoMaestro:maestro;var archivoT: Text;);
     var
-        archivoT: Text;
         min:datoD;
         aux:datoM;
         desc,nom:string[str];
@@ -84,5 +83,19 @@ type
         close(archivoT);
     end;
 
+var
+    archivo_maestro:maestro;
+    vectorDet:vectorDetalle;
+    vectorDato:vectorDatoD;
+    archivoT:Text;
 begin
+    Assign(archivo_maestro,'maestro.bin');
+    for i:= 1 to cantDetalles do begin
+        Assign(vectorDet[i],'archivoDetalle'+i+'.bin');
+        read(vectorDet[i],vectorDato[i]);
+    end;
+    Assign(archivoT,'reporte.txt');
+    crearMaestro(vectorDet,vectorDato,archivo_maestro,archivoT);
+    for i:= 1 to cantDetalles 
+        close(vectorDet[i]);
 end.
