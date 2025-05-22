@@ -9,7 +9,7 @@ chan pedidoCaV(pedido,int);
 chan pedidoVaC(pedido,int);
 chan entrega (plato);
 process Cliente[id:0..C-1]{
-    pedido p;
+    texto p;
     plato pla;
     p=elegirPedido();
     send pedidoCaV(p,id);
@@ -17,30 +17,36 @@ process Cliente[id:0..C-1]{
 }
 
 process Vendedor [id:0..2]{
-    pedido p;
+    texto p;
     int cliente;
     while (1)
     {
-       if(empty(pedido[id]())){
+       send estoyLibre(id);
+       receive siguiente[id](p,cliente);
+       if(p="vacio"){
         reponerBebida();
        }
-       else{
-        receive pedido(p,cliente);
+       else
+       {
         send pedidoVaC(p,cliente);
        }
-        
     }
 }
 
 process Admin{
-    pedido p;
-    int id,contador=0;
-
+    texto p;
+    int id_cliente,id_vendedor;
     while (1)
     {
-        receive pedidoCaV(p,id)
-        send estoyDisp[contador](p,id);
-        contador=(contador+1) % 3;
+        receive estoyLibre(id_vendedor);
+        if(empty(pedidoCaV())){
+            p="vacio";
+        }
+        else
+        {
+            receive pedidoCaV(p,id_cliete);
+        }
+        send siguente[id_vendedor](p,id_cliente);
     }
     
 }

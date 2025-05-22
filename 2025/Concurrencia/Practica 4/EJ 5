@@ -25,15 +25,25 @@ process Impresora[id:0..2]{
     pedido p;
     while (1)
     {
-        if(!empty(imprimirDir(p)))
-        {
-            receive imprimirDir(p);         //Preguntar si asi se le da prioridad
-            imprimir(p);
-        }
-        else
-        {
-            receive imprimirEmp(p);
-            imprimir(p);
-        }
+        send libre(id);
+        receive siguiente[id](p);
+        imprimir(p);
     }
+}
+
+process Admin {
+    int id;
+    pedido p;
+    while (1)
+    {
+        receive libre(id);
+        if(not empty(imprimirDir())){
+            receive imprimirDir(p);
+        }
+        else{
+            receive imprimirEmp(p);
+        }
+        send siguiente[id](p);
+    }
+    
 }
