@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "pascal-build",
+            "type": "shell",
+            "command": "fpc",
+            "args": [
+                "${file}",
+                "-o${workspaceFolder}\\${fileBasenameNoExtension}.exe",
+                "-g"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}

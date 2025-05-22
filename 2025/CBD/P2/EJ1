@@ -49,7 +49,7 @@ begin
         pos:=i;
       end;
   end;
-  leerD(archivo[i],rdet[i]);
+  leerD(archivo[pos],rdet[pos]);
 end;
 
 var
