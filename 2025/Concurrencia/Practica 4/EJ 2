@@ -5,14 +5,16 @@
  
  chan Fila[5](float);
  chan respuesta[5]();
-
+ chan llegue();
+ chan liberoCaja(int);
  process Persona[id:0..P-1]{
      int id_caja;
      float dinero;
-     id_caja=cajaConMenosFila();
-     send Fila[id_caja](dinero);
+     send llegue();
+     receive cajaLibre(id_caja)
+     send Fila[id_caja](dinero);  
      receive respuesta[id_caja]();
-
+     send liberoCaja(id_caja);
  }
  process Caja[id:0..4]{
     float dinero;
@@ -22,5 +24,24 @@
         send respuesta[id]();
 
     }
+ }
+
+ process Admin {
+    int contador [5]={[5]0};
+    int pos=0,libero;
+    while (1)
+    {   
+        if(!empty(llegue())){
+            receive llegue()
+            contador[pos]++;
+            pos=(pos+1) % 5;
+            send cajaLibre(pos);
+        }                               //Busy waiting
+        if(!empty(liberoCaja()){
+            receive liberoCaja(libero);
+            contador[libero]--;
+        } 
+    }
+    
     
  }

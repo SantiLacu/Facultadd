@@ -21,16 +21,28 @@ process Vendedor [id:0..2]{
     int cliente;
     while (1)
     {
-        if (empty(pedidoCaV))
-        {
-            reponerBebida();
-        }
-        else
-        {
-            receive pedidoCaV(p,cliente);
-            send pedidoVaC(p,cliente);
-        }
+       if(empty(pedido[id]())){
+        reponerBebida();
+       }
+       else{
+        receive pedido(p,cliente);
+        send pedidoVaC(p,cliente);
+       }
+        
     }
+}
+
+process Admin{
+    pedido p;
+    int id,contador=0;
+
+    while (1)
+    {
+        receive pedidoCaV(p,id)
+        send estoyDisp[contador](p,id);
+        contador=(contador+1) % 3;
+    }
+    
 }
 
 process Cocinero [id:0..1]{
