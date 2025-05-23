@@ -4,5 +4,6 @@
         "ej 2": "c",
         "ej 9": "c",
         "ej 10": "c"
-    }
+    },
+    "sarif-viewer.connectToGithubCodeScanning": "off"
 }
