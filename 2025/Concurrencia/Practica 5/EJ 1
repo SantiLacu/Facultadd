@@ -5,18 +5,55 @@
 --mayor prioridad los camiones que el resto de los vehículos
 
 procedure Puente is
-task type vehículo;
+
+task type vehículo is
+   entry Ident(tipo:in String);
+end vehículo;
+
 task Administrador is
-   entry Pasar(tipo: IN text);
+   entry Pasar(tipo: IN String;pase: out Boolean);
+   entry Salir(tipo: IN String);
 end Administrador;
+
 arrVehiculos: array (1..N) of vehículo;
+
 task body Administrador is
-cant:int;
+cant:Integer;
 begin
-   accept Pasar (tipo : IN text)do
-      
-      if(tipo = "camion")
+   cant:=0;
+   loop
+      select
+         when (Salir'Count=0) accept Pasar(tipo: IN String;pase: out Boolean) do
+            pase:=true;
+            if (cant<5) then
+               if (tipo = "camion") and (cant+3<5) then
+                  cant:=cant+3;
+               elsif (tipo = "camioneta") and (cant+2<5) then
+                  cant:=cant+2;
+               elsif (tipo = "auto") and (cant+1<5) then
+                  cant:=cant+1;
+               end if;
+            else
+               pase:=False;
+            end if; 
+      end Pasar;
+      accept Salir(tipo: IN String) do
+         if (tipo = "camion") then
+               cant:=cant-3;
+            elsif (tipo = "camioneta") then
+               cant:=cant-2;
+            elsif (tipo = "auto") then
+               cant:=cant-1;
+            end if;
+      end Salir;
+   end loop;
 end Administrador;
+
+task body vehículo is
+begin
+   tipo:String;
+   Administrador.Pasar (tipo : IN String, pase : out Boolean)
+end vehículo;
 begin
          
 end Puente;
