@@ -3,57 +3,57 @@
 --cantidad innumerable de vehículos (A autos, B camionetas y C camiones). a. Realice la solución 
 --suponiendo que todos los vehículos tienen la misma prioridad. b. Modifique la solución para que tengan 
 --mayor prioridad los camiones que el resto de los vehículos
+procedure puente is
 
-procedure Puente is
+task Coordinador is
+   entry solicitarPaso(tipo: IN Integer;respuesta: OUT Boolean);
+   entry liberarPaso(tipo: IN Integer);
+end Coordinador;
 
-task type vehículo is
-   entry Ident(tipo:in String);
-end vehículo;
+task type vehiculo;
+arrVehiculos: array(1..N) of vehiculo;
 
-task Administrador is
-   entry Pasar(tipo: IN String;pase: out Boolean);
-   entry Salir(tipo: IN String);
-end Administrador;
-
-arrVehiculos: array (1..N) of vehículo;
-
-task body Administrador is
-cant:Integer;
+task body Coordinador is
+   pesoTotal:Integer;
+   pesoTipo: array(1..3) of Integer;
 begin
-   cant:=0;
+   pesoTipo(1):=1;
+   pesoTipo(2):=2;
+   pesoTipo(3):=3;
+   pesoTotal:=5;
    loop
       select
-         when (Salir'Count=0) accept Pasar(tipo: IN String;pase: out Boolean) do
-            pase:=true;
-            if (cant<5) then
-               if (tipo = "camion") and (cant+3<5) then
-                  cant:=cant+3;
-               elsif (tipo = "camioneta") and (cant+2<5) then
-                  cant:=cant+2;
-               elsif (tipo = "auto") and (cant+1<5) then
-                  cant:=cant+1;
-               end if;
-            else
-               pase:=False;
-            end if; 
-      end Pasar;
-      accept Salir(tipo: IN String) do
-         if (tipo = "camion") then
-               cant:=cant-3;
-            elsif (tipo = "camioneta") then
-               cant:=cant-2;
-            elsif (tipo = "auto") then
-               cant:=cant-1;
+         when ((liberarPaso'Count=0) and (pesoTotal>0))=>accept solicitarPaso(tipo: IN Integer;respuesta: OUT Boolean) do -- Le doy prioridad a que alguien quiera liberar
+            if ((pesoTotal-pesoTipo(tipo))>=0) then
+               pesoTotal:=pesoTotal-pesoTipo(tipo);
+               respuesta:=true;
+            else 
+               respuesta:=false;
             end if;
-      end Salir;
+         end solicitarPaso;
+      or
+         accept liberarPaso (tipo : IN Integer)do
+            pesoTotal:=pesoTotal+pesoTipo(tipo);
+         end liberarPaso;
+      end select;
    end loop;
-end Administrador;
+end Coordinador;
 
-task body vehículo is
+task body vehiculo is
+   tipo: Integer;
+   respuesta: Boolean;
 begin
-   tipo:String;
-   Administrador.Pasar (tipo : IN String, pase : out Boolean)
-end vehículo;
+   --Como determino que tipo es cada si son inmuerables?
+   loop
+      Coordinador.solicitarPaso (tipo,respuesta);
+      if (respuesta) then
+         --El vehiculo atraviesa el puente
+         exit;
+      end if;
+   end loop;
+   Coordinador.liberarPaso (tipo);
+end vehiculo;
+
 begin
-         
-end Puente;
+   --Aca determinaria el tipo pero no sé como
+end puente;
