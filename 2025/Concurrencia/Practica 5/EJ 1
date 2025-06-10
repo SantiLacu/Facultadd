@@ -6,54 +6,96 @@
 procedure puente is
 
 task Coordinador is
-   entry solicitarPaso(tipo: IN Integer;respuesta: OUT Boolean);
-   entry liberarPaso(tipo: IN Integer);
+   entry pasoAuto();
+   entry pasoCamioneta();
+   entry pasoCamion();
+   entry liberarPaso();
 end Coordinador;
 
-task type vehiculo;
-arrVehiculos: array(1..N) of vehiculo;
+task type auto is
+   entry identAuto(tipo: Integer);
+end auto;
+
+task type camion is
+   entry identCamion(tipo: Integer);
+end camion;
+
+task type camioneta is
+   entry identCamioneta(tipo: Integer);
+end camioneta;
+
+arrAuto: array(1..A) of auto;
+arrAuto: array(1..B) of camioneta;
+arrAuto: array(1..C) of camion;
+
 
 task body Coordinador is
    pesoTotal:Integer;
    pesoTipo: array(1..3) of Integer;
 begin
+   pesoTotal:=5;
    pesoTipo(1):=1;
    pesoTipo(2):=2;
    pesoTipo(3):=3;
-   pesoTotal:=5;
    loop
       select
-         when ((liberarPaso'Count=0) and (pesoTotal>0))=>accept solicitarPaso(tipo: IN Integer;respuesta: OUT Boolean) do -- Le doy prioridad a que alguien quiera liberar
-            if ((pesoTotal-pesoTipo(tipo))>=0) then
-               pesoTotal:=pesoTotal-pesoTipo(tipo);
-               respuesta:=true;
-            else 
-               respuesta:=false;
-            end if;
-         end solicitarPaso;
+         when((liberarPaso'Count=0)and(pesoTotal>=1))=> accept pasoAuto() do
+            pesoTotal:=pesoTotal-1;
+         end pasoAuto;
       or
-         accept liberarPaso (tipo : IN Integer)do
+         when((liberarPaso'Count=0)and(pesoTotal>=2))=> accept pasoCamioneta () do 
+            pesoTotal:=pesoTotal-2;
+      or
+         when((liberarPaso'Count=0)and(pesoTotal>=3))=> accept pasoCamion () do
+            pesoTotal:=pesoTotal-3;
+      or
+         accept liberarPaso(tipo:Integer) do -- Hay prioridad para liberar el paso
             pesoTotal:=pesoTotal+pesoTipo(tipo);
-         end liberarPaso;
       end select;
    end loop;
 end Coordinador;
 
-task body vehiculo is
-   tipo: Integer;
-   respuesta: Boolean;
+task body auto is
+   t: Integer;
 begin
-   --Como determino que tipo es cada si son inmuerables?
-   loop
-      Coordinador.solicitarPaso (tipo,respuesta);
-      if (respuesta) then
-         --El vehiculo atraviesa el puente
-         exit;
-      end if;
-   end loop;
-   Coordinador.liberarPaso (tipo);
-end vehiculo;
+   accept identAuto(tipo:Integer) do
+      t:=tipo;
+   end identAuto;
+   Coordinador.pasoAuto();
+   --Pasa por el puente
+   Coordinador.liberarPaso(t);
+end auto;
 
+task body auto is
+   t: Integer;
 begin
-   --Aca determinaria el tipo pero no sé como
+   accept identCamioneta(tipo:Integer) do
+      t:=tipo;
+   end identCamioneta;
+   Coordinador.pasoCamioneta();
+   --Pasa por el puente
+   Coordinador.liberarPaso(t);
+end camioneta;
+
+task body camion is
+   t: Integer;
+begin
+   accept identCamion(tipo:Integer) do
+      t:=tipo;
+   end identCamion;
+   Coordinador.pasoCamion();
+   --Pasa por el puente
+   Coordinador.liberarPaso(t);
+end camion;
+begin
+   for J in 1..A loop
+      auto.identAuto(j);
+   end loop;
+   for J in 1..B loop
+      auto.identCamioneta(j);
+   end loop;
+   for J in 1..C loop
+      auto.identCamion(j);
+   end loop;
+   --Para dar prioridad a los camiones agregar en el when del accept del auto y camioneta que el contador de accept del camion sea 0
 end puente;
