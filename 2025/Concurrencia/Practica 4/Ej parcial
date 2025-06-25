@@ -1,0 +1,25 @@
+process admin{
+    cola c[3]; int id,tipo,caja,i,min; texto t;
+    if 
+    {
+       not empty(fila)--> receive llegue(id,tipo);
+                          min=9999;
+                          i=0;
+                          while (i++<3)
+                          {
+                            if (sizeof(c[i])<min)){
+                                min=sizeof(c[i]);
+                            }
+                          }
+                          encolarOrdenado(c[min],id,tipo,t);
+        not empty(libre)--> receive libre(c);
+                            if(not empty(c[c])){
+                                desEncolarOrdenado(c[c],id,t);
+                            }
+                            else
+                            {
+                                id=-1;
+                            }
+                            send trabajo[c](id,t);
+    }
+}

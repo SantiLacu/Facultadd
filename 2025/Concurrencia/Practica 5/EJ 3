@@ -1,0 +1,60 @@
+--Se dispone de un sistema compuesto por 1 central y 2 procesos. Los procesos envían señales a la central. 
+--La central comienza su ejecución tomando una señal del proceso 1, luego toma aleatoriamente señales de cualquiera de 
+--los dos indefinidamente. Al recibir una señal de proceso 2, recibe señales del mismo proceso durante 3 minutos.
+--El proceso 1 envía una señal que es considerada vieja (se deshecha) si en 2 minutos no fue recibida
+--El proceso 2 envía una señal, si no es recibida en ese instante espera 1 minuto y vuelve a mandarla (no se deshecha).
+procedure sistema is
+   task central is
+      entry señal1(señal: IN texto);
+      entry señal2(señal: IN texto);
+   end central; 
+
+   task proceso1;
+   task proceso2;
+
+   task body central is
+   s:texto;
+   begin
+      accept señal1(s);
+      --Procesa la señal
+      loop
+         select
+            accept señal1(s);
+            --Procesa la señal
+         or
+            select
+               accept señal2(s);
+               --Procesa la señal
+            or delay 180;-- Asi se hace lo de que recibe durante 3mins
+            end select;
+         end select;
+      end loop;
+   end central;
+
+   task body proceso1 is
+      señal:texto;
+   begin
+      loop
+         crearSeñal(señal);
+         select
+            central.señal1(señal);
+         or delay 120
+         end select;
+      end loop;
+   end proceso1;
+
+   task body proceso2 is
+      señal:texto;
+   begin
+      crearSeñal(señal);
+      loop
+         select
+            central.señal2(señal);
+            crearSeñal(señal);
+         or delay 60
+         end select;
+      end loop;
+   end proceso2;
+begin
+   
+end sistema;

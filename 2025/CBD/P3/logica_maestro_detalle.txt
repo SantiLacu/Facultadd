@@ -1,0 +1,66 @@
+Resolución de ejercicios de actualización de archivo maestro con N detalles y generación de reporte
+====================================================================
+
+1. Estructura general del problema
+----------------------------------
+En este tipo de ejercicios se cuenta con:
+- Un archivo maestro (compactado por algún criterio, por ejemplo año/mes).
+- N archivos detalle (con información más granular, por ejemplo ventas diarias).
+- Todos los archivos están ordenados por los mismos campos clave (por ejemplo: año, mes, día, marca, modelo).
+
+El objetivo suele ser:
+- Actualizar el archivo maestro a partir de los N detalles (sumar totales, contar registros, etc.).
+- Generar un reporte adicional (por ejemplo, el modelo más vendido en un día para cada marca).
+
+2. Lógica de procesamiento
+--------------------------
+El procesamiento se realiza en un solo recorrido simultáneo de los N archivos detalle, aprovechando que están ordenados. Se utiliza un vector de registros actuales (uno por cada archivo detalle) y se busca siempre el "mínimo" (el registro más chico según la clave de orden).
+
+3. Cortes de control
+--------------------
+El corte de control es la técnica fundamental para agrupar y procesar registros que comparten una misma clave (por ejemplo, todos los registros del mismo año/mes, o del mismo modelo, etc.).
+
+La estructura típica es:
+
+- Mientras no se llegue al valor alto (fin de todos los detalles):
+    - Tomar el valor actual de la clave principal (por ejemplo, año/mes).
+    - Inicializar contadores/acumuladores del grupo principal.
+    - Mientras la clave principal no cambie:
+        - Tomar el valor de la siguiente subclave (por ejemplo, marca).
+        - Inicializar contadores/acumuladores de la subclave.
+        - Mientras la subclave no cambie:
+            - Tomar el valor de la siguiente subclave (por ejemplo, modelo).
+            - Inicializar contadores/acumuladores de la subclave.
+            - Mientras la subclave no cambie:
+                - Procesar los registros (acumular, contar, etc.).
+                - Avanzar al siguiente registro mínimo.
+            - Fin corte de modelo (aquí se actualizan los contadores/acumuladores del modelo).
+        - Fin corte de marca (aquí se actualizan los contadores/acumuladores de la marca).
+    - Fin corte de año/mes (aquí se actualizan los contadores/acumuladores del año/mes).
+- Fin mientras.
+
+Cada vez que se detecta un cambio de clave (por ejemplo, cambia el modelo), se debe:
+- Finalizar el procesamiento/acumulación del grupo anterior.
+- Guardar los resultados parciales si corresponde (por ejemplo, actualizar máximos/mínimos).
+
+4. Búsqueda del mínimo
+----------------------
+Para avanzar en los archivos detalle, se utiliza una función/procedimiento que busca el registro mínimo entre los N registros actuales. Cada vez que se procesa un registro, se lee el siguiente del mismo archivo detalle.
+
+5. Generación del reporte
+-------------------------
+El reporte se puede generar durante el mismo recorrido, aprovechando los cortes de control para imprimir o guardar los resultados parciales (por ejemplo, el modelo más vendido en un día para cada marca).
+
+6. Ventajas de este enfoque
+---------------------------
+- Solo se recorre una vez cada archivo detalle (eficiencia en acceso a disco).
+- El código es claro y modular, con procedimientos para leer, buscar el mínimo y realizar los cortes de control.
+- Permite procesar grandes volúmenes de datos ordenados de manera eficiente.
+
+7. Resumen
+----------
+La clave para resolver estos ejercicios es:
+- Aprovechar el orden de los archivos.
+- Usar correctamente los cortes de control para agrupar y procesar los datos.
+- Mantener el código modular y claro, con funciones para leer registros y buscar el mínimo.
+- Generar el reporte en el mismo recorrido si es posible.
